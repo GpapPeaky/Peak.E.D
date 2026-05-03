@@ -103,7 +103,15 @@ int main(int argc, char** argv) {
     if (activeFlags[0].first) {
         std::ifstream in;
         std::ofstream out;
-        
+
+        // TODO:
+        //       Maybe resolve this issue, make the tool more modular
+        //       Add flag struct and flag context to check which
+        //       flags are for pre-processing
+        //       and which are for encryption/decryption selection
+        //
+        //       Add more Ecr/Dcr algorithms
+        //
         in.open("FLAGACTIVATIONFILE.file");
         out.open("FLAGACTIVATIONFILE.file");
         
