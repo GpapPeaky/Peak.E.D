@@ -2,7 +2,7 @@
 
 CXX = g++
 CXXFLAGS = -Wall
-SRC = peaky_encrypt_decrypt.cpp 
+SRC = src/*.cpp src/ciphers/*.cpp 
 BIN_NAME = peaked
 
 # Conf
