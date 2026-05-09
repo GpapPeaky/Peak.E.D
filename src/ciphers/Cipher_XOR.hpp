@@ -5,19 +5,19 @@
 namespace Ciphers {
     class XOR : public Cipher {
         private:
-            uint8_t key = 0xAA; // Cipher key    
-                
+            std::vector<UINT32> key; // Cipher key
+
         public:
             // Construct
             XOR(void);
         
             // Initializer
-            void Init(const std::vector<uint8_t>& key, const std::vector<uint8_t>& iv) override ;
+            void Init(const std::vector<UINT32>& key, const std::vector<UINT32>& iv) override ;
     
             // Cipher update
-            void Update(const uint8_t* in, size_t len, std::vector<uint8_t>& out) override ;
+            void Update(const UINT32* in, size_t len, std::vector<UINT32>& out) override ;
     
             // Finalize cipher steps
-            void Final(std::vector<uint8_t>& out) override ;
+            void Final(std::vector<UINT32>& out) override ;
     }; // XOR Cipher
 } // Ciphers

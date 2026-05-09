@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utils.hpp"
+
 #include <cstdint>
 #include <cstddef>
 #include <vector>
@@ -11,12 +13,12 @@ namespace Ciphers {
             virtual ~Cipher(void) = default;
 
             // Initializer
-            virtual void Init(const std::vector<uint8_t>& key, const std::vector<uint8_t>& iv) = 0; 
+            virtual void Init(const std::vector<UINT32>& key, const std::vector<UINT32>& iv) = 0; 
 
             // Cipher update
-            virtual void Update(const uint8_t* in, size_t len, std::vector<uint8_t>& out) = 0;
+            virtual void Update(const UINT32* in, size_t len, std::vector<UINT32>& out) = 0;
 
             // Finalize cipher steps
-            virtual void Final(std::vector<uint8_t>& out) = 0;
+            virtual void Final(std::vector<UINT32>& out) = 0;
     }; // Cipher class
 } // Ciphers

@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
         std::cerr << "Please provide a valid cipher for encryption/decryption\n";
         return -3;
     }
-
+        
     // File streams, will save the output to one tmp file for now
     // TODO
     //    We need to update the pipeline for encrypting/decrypting all inputed files, later

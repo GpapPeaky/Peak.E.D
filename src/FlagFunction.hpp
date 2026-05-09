@@ -6,6 +6,8 @@
 #include "Utils.hpp"
 
 #include <fstream>
+#include <sstream>
+#include <cctype>
 #include <iostream>
 
 namespace Functions {
@@ -55,5 +57,5 @@ namespace Functions {
     extern bool gPrintLock;
     
     // Key if required, might get used by a cipher, maybe not, assigning it to simple ciphers does nothing
-    extern uint8_t* gKey; 
+    extern std::vector<UINT32> gKey; 
 } // Flagging

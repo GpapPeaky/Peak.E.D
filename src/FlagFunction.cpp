@@ -3,7 +3,7 @@
 namespace Functions {
     bool gPrintLock = false;
 
-    uint8_t* gKey = nullptr;
+    std::vector<UINT32> gKey;
     
     // Runtimes
         
@@ -12,22 +12,24 @@ namespace Functions {
     }
     
     void Encrypt(std::ifstream& in, std::ofstream& out, Ciphers::Cipher*& cipher) {
-        std::vector<uint8_t> buffer(4096);
+        std::vector<UINT32> buffer(4096);
         
         while(in) {
-            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
+            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size() * sizeof(UINT32));
             
             std::streamsize bytesRead = in.gcount();
             
             if (bytesRead <= 0) break; // Exit
             
-            std::vector<uint8_t> outbuf;
+            std::vector<UINT32> outbuf;
             
-            cipher->Update(buffer.data(), static_cast<size_t>(bytesRead), outbuf);
-    
+            size_t u32Count = static_cast<size_t>(bytesRead) / sizeof(UINT32);
+
+            cipher->Update(buffer.data(), u32Count, outbuf);
+
             char* outBufferDataCharPointer = reinterpret_cast<char*>(outbuf.data());
                     
-            out.write(outBufferDataCharPointer, outbuf.size());
+            out.write(outBufferDataCharPointer, outbuf.size() * sizeof(UINT32));
     
             if (gPrintLock) {
                 std::cout.write(outBufferDataCharPointer, outbuf.size());
@@ -36,25 +38,27 @@ namespace Functions {
     }
     
     void Decrypt(std::ifstream& in, std::ofstream& out, Ciphers::Cipher*& cipher) {
-        std::vector<uint8_t> buffer(4096);
+        std::vector<UINT32> buffer(4096);
         
         while(in) {
-            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
+            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size() * sizeof(UINT32));
             
             std::streamsize bytesRead = in.gcount();
             
             if (bytesRead <= 0) break; // Exit
             
-            std::vector<uint8_t> outbuf;
+            std::vector<UINT32> outbuf;
             
-            cipher->Update(buffer.data(), static_cast<size_t>(bytesRead), outbuf);
+            size_t u32Count = static_cast<size_t>(bytesRead) / sizeof(UINT32);
+
+            cipher->Update(buffer.data(), u32Count, outbuf);
     
             char* outBufferDataCharPointer = reinterpret_cast<char*>(outbuf.data());
                     
-            out.write(outBufferDataCharPointer, outbuf.size());
+            out.write(outBufferDataCharPointer, outbuf.size() * sizeof(UINT32));
     
             if (gPrintLock) {
-                std::cout.write(outBufferDataCharPointer, outbuf.size());
+                std::cout.write(outBufferDataCharPointer, outbuf.size() * sizeof(UINT32));
             }
         }
     }
@@ -62,46 +66,92 @@ namespace Functions {
     void Noop(std::ifstream& in, std::ofstream& out, Ciphers::Cipher& cipher) {
         // NOOP
     }
-        
+            
     // Key reading
-    
+        
     void ReadKey(std::string& argument) {
-        size_t pos = argument.find(":");
+        gKey.clear();
     
-        if (pos == std::string::npos) {
+        size_t firstColon = argument.find(':');
     
+        if (firstColon == std::string::npos) {
             std::cerr
-                << "Separator ':' not found, use format: -key:value\n";
+                << "Separator ':' not found, use format: -key:value1:value2:...\n";
     
             exit(-20);
         }
     
-        std::string keyString = argument.substr(pos + 1);
+        std::string remaining = argument.substr(firstColon + 1);
     
-        if (keyString.empty()) {
-    
+        if (remaining.empty()) {
             std::cerr << "Key cannot be empty\n";
     
             exit(-21);
         }
     
-        std::string combined;
+        std::stringstream ss(remaining);
     
-        for (char c : keyString) {
-            combined += std::to_string(
-                static_cast<int>(
-                    static_cast<uint8_t>(c)
-                )
-            );
+        std::string token;
+    
+        while (std::getline(ss, token, ':')) {
+    
+            if (token.empty())
+                continue;
+    
+            bool isNumber = true;
+    
+            for (unsigned char c : token) {
+    
+                if (!std::isdigit(c)) {
+                    isNumber = false;
+                    break;
+                }
+            }
+    
+            // Pure numeric token
+            if (isNumber) {
+    
+                UINT32 value = 0;
+    
+                for (char c : token) {
+    
+                    value *= 10;
+    
+                    value += static_cast<UINT32>(c - '0');
+    
+                    // UINT32 overflow wraps automatically
+                }
+    
+                gKey.push_back(value);
+    
+            } else {
+    
+                // ASCII concatenation with natural UINT32 wraparound
+                UINT32 value = 0;
+    
+                for (unsigned char c : token) {
+    
+                    std::string ascii = std::to_string(c);
+    
+                    for (char digit : ascii) {
+    
+                        value *= 10;
+    
+                        value += static_cast<UINT32>(digit - '0');
+    
+                        // UINT32 overflow wraps automatically
+                    }
+                }
+    
+                gKey.push_back(value);
+            }
         }
     
-        unsigned long long value =
-            std::stoull(combined);
+        if (gKey.empty()) {
+            std::cerr << "No valid keys provided\n";
     
-        static uint8_t finalKey =
-            static_cast<uint8_t>(value);
-    
-        gKey = &finalKey;
+            exit(-22);
+        }
     }
     
     // Preprocessing, assigning ciphers
@@ -113,10 +163,9 @@ namespace Functions {
     void AssignXOR(Ciphers::Cipher*& cipher) {
         static Ciphers::XOR cipherXOR; // Persists, created once
     
-        std::vector<uint8_t> key = {0xAA}; // default key
-        std::vector<uint8_t> iv;
+        std::vector<UINT32> iv;
         
-        cipherXOR.Init(key, iv);
+        cipherXOR.Init(Functions::gKey, iv);
             
         cipher = &cipherXOR;
     }
