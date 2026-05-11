@@ -2,6 +2,7 @@
 
 #include "Cipher.hpp"
 #include "ciphers/Cipher_XOR.hpp"
+#include "ciphers/Cipher_PEAKY.hpp"
 
 #include "Utils.hpp"
 
@@ -52,6 +53,7 @@ namespace Functions {
 
     // Assign cipher
     void AssignXOR(Ciphers::Cipher*& cipher);
+    void AssignPEAKY(Ciphers::Cipher*& cipher);
 
     // Printing lock
     extern bool gPrintLock;

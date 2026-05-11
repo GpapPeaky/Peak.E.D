@@ -169,4 +169,14 @@ namespace Functions {
             
         cipher = &cipherXOR;
     }
+        
+    void AssignPEAKY(Ciphers::Cipher*& cipher) {
+        static Ciphers::PEAKY cipherPEAKY; // Persists, created once
+    
+        std::vector<UINT32> iv;
+        
+        cipherPEAKY.Init(Functions::gKey, iv);
+            
+        cipher = &cipherPEAKY;
+    }
 } // Functions
