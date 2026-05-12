@@ -7,15 +7,21 @@ namespace Ciphers {
         this->key = key;
     }
     
-    void XOR::Update(const UINT32* in, size_t len, std::vector<UINT32>& out) {
+    void XOR::UpdateE(const UINT8* in, size_t len, std::vector<UINT8>& out) {
         out.resize(len);
         
         for (size_t i = 0 ; i < len ; i++) {
             out[i] = in[i] ^ key[0]; // Takes only the first part 
         }    
     }
+        
+    void XOR::UpdateD(const UINT8* in, size_t len, std::vector<UINT8>& out) {
+        // Symmetrical
+        
+        UpdateE(in, len, out);
+    }
     
-    void XOR::Final(std::vector<UINT32>& out) {
+    void XOR::Final(std::vector<UINT8>& out) {
         // NOOP    
     }
 } // Ciphers

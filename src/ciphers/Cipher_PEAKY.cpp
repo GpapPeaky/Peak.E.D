@@ -7,15 +7,27 @@ namespace Ciphers {
         this->key = key;
     }
     
-    void PEAKY::Update(const UINT32* in, size_t len, std::vector<UINT32>& out) {
+    void PEAKY::UpdateE(const UINT8* in, size_t len, std::vector<UINT8>& out) {
         out.resize(len);
         
-        for (int i = 0 ; i < len && i < key.size() ; i++) {
-            out[i] == key.at(i) + 1;
+        for (size_t i = 0 ; i < len ; i++) {
+            size_t k = i % key.size();
+            
+            out[i] = (in[i] ^ key[k]) +  static_cast<UINT8>(i);
+        }
+    }
+        
+    void PEAKY::UpdateD(const UINT8* in, size_t len, std::vector<UINT8>& out) {
+        out.resize(len);
+        
+        for (size_t i = 0 ; i < len ; i++) {
+            size_t k = i % key.size();
+     
+            out[i] = (in[i] - static_cast<UINT8>(i)) ^ key[k];
         }
     }
     
-    void PEAKY::Final(std::vector<UINT32>& out) {
+    void PEAKY::Final(std::vector<UINT8>& out) {
         // NOOP    
     }
 } // Ciphers

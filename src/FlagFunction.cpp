@@ -12,24 +12,22 @@ namespace Functions {
     }
     
     void Encrypt(std::ifstream& in, std::ofstream& out, Ciphers::Cipher*& cipher) {
-        std::vector<UINT32> buffer(4096);
+        std::vector<UINT8> buffer(4096);
         
         while(in) {
-            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size() * sizeof(UINT32));
+            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
             
             std::streamsize bytesRead = in.gcount();
             
             if (bytesRead <= 0) break; // Exit
             
-            std::vector<UINT32> outbuf;
-            
-            size_t u32Count = static_cast<size_t>(bytesRead) / sizeof(UINT32);
+            std::vector<UINT8> outbuf;
 
-            cipher->Update(buffer.data(), u32Count, outbuf);
+            cipher->UpdateE(buffer.data(), bytesRead, outbuf);
 
             char* outBufferDataCharPointer = reinterpret_cast<char*>(outbuf.data());
                     
-            out.write(outBufferDataCharPointer, outbuf.size() * sizeof(UINT32));
+            out.write(outBufferDataCharPointer, outbuf.size());
     
             if (gPrintLock) {
                 std::cout.write(outBufferDataCharPointer, outbuf.size());
@@ -38,27 +36,25 @@ namespace Functions {
     }
     
     void Decrypt(std::ifstream& in, std::ofstream& out, Ciphers::Cipher*& cipher) {
-        std::vector<UINT32> buffer(4096);
+        std::vector<UINT8> buffer(4096);
         
         while(in) {
-            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size() * sizeof(UINT32));
-            
+            in.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
+
             std::streamsize bytesRead = in.gcount();
             
             if (bytesRead <= 0) break; // Exit
             
-            std::vector<UINT32> outbuf;
-            
-            size_t u32Count = static_cast<size_t>(bytesRead) / sizeof(UINT32);
+            std::vector<UINT8> outbuf;
 
-            cipher->Update(buffer.data(), u32Count, outbuf);
+            cipher->UpdateD(buffer.data(), bytesRead, outbuf);
     
             char* outBufferDataCharPointer = reinterpret_cast<char*>(outbuf.data());
                     
-            out.write(outBufferDataCharPointer, outbuf.size() * sizeof(UINT32));
+            out.write(outBufferDataCharPointer, outbuf.size());
     
             if (gPrintLock) {
-                std::cout.write(outBufferDataCharPointer, outbuf.size() * sizeof(UINT32));
+                std::cout.write(outBufferDataCharPointer, outbuf.size());
             }
         }
     }

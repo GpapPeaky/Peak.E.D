@@ -1,6 +1,6 @@
 # Defines
 
-CXX = g++
+CXX = g++ -std=c++20
 CXXFLAGS = -Wall
 SRC = src/*.cpp src/ciphers/*.cpp 
 BIN_NAME = peaked
